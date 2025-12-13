@@ -6,12 +6,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404, render, redirect
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from .permissions import IsAdminOrReadOnly, CanManageWorkers, CanManageBuses, CanManageAssignments
 from .models import Trabajador, Rol, Bus, EstadoBus, AsignacionRol, AsignacionBus
 from .serializers import (
     TrabajadorSerializer, RolSerializer, BusSerializer,
     EstadoBusSerializer, AsignacionRolSerializer, AsignacionBusSerializer
 )
-
 
 # ==================== AUTENTICACIÓN ====================
 
@@ -68,7 +70,7 @@ class LogoutAPIView(APIView):
 
 class TrabajadorListCreateAPIView(APIView):
     """Vista para listar y crear trabajadores"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageWorkers]
     
     def get(self, request):
         """Listar todos los trabajadores con filtros opcionales"""
@@ -102,7 +104,7 @@ class TrabajadorListCreateAPIView(APIView):
 
 class TrabajadorDetailAPIView(APIView):
     """Vista para ver, editar y eliminar un trabajador específico"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageWorkers]
     
     def get(self, request, pk):
         """Obtener detalles de un trabajador"""
@@ -142,7 +144,7 @@ class TrabajadorDetailAPIView(APIView):
 
 class RolListCreateAPIView(APIView):
     """Vista para listar y crear roles"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     
     def get(self, request):
         """Listar todos los roles"""
@@ -172,7 +174,7 @@ class RolListCreateAPIView(APIView):
 
 class RolDetailAPIView(APIView):
     """Vista para ver, editar y eliminar un rol específico"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     
     def get(self, request, pk):
         """Obtener detalles de un rol"""
@@ -180,7 +182,7 @@ class RolDetailAPIView(APIView):
         serializer = RolSerializer(rol)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, pk):
+    def put(self, request, pk): 
         """Actualizar un rol completamente"""
         rol = get_object_or_404(Rol, pk=pk)
         serializer = RolSerializer(rol, data=request.data)
@@ -212,7 +214,7 @@ class RolDetailAPIView(APIView):
 
 class BusListCreateAPIView(APIView):
     """Vista para listar y crear buses"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageBuses]
     
     def get(self, request):
         """Listar todos los buses"""
@@ -242,7 +244,7 @@ class BusListCreateAPIView(APIView):
 
 class BusDetailAPIView(APIView):
     """Vista para ver, editar y eliminar un bus específico"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageBuses]
     
     def get(self, request, pk):
         """Obtener detalles de un bus"""
@@ -282,7 +284,7 @@ class BusDetailAPIView(APIView):
 
 class EstadoBusListCreateAPIView(APIView):
     """Vista para listar y crear estados de buses"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageBuses]
     
     def get(self, request):
         """Listar todos los estados de buses"""
@@ -307,7 +309,7 @@ class EstadoBusListCreateAPIView(APIView):
 
 class EstadoBusDetailAPIView(APIView):
     """Vista para ver, editar y eliminar un estado de bus específico"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageBuses]
     
     def get(self, request, pk):
         """Obtener detalles de un estado de bus"""
@@ -347,7 +349,7 @@ class EstadoBusDetailAPIView(APIView):
 
 class AsignacionRolListCreateAPIView(APIView):
     """Vista para listar y crear asignaciones de roles"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageAssignments]
     
     def get(self, request):
         """Listar todas las asignaciones de roles"""
@@ -372,7 +374,7 @@ class AsignacionRolListCreateAPIView(APIView):
 
 class AsignacionRolDetailAPIView(APIView):
     """Vista para ver, editar y eliminar una asignación de rol específica"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageAssignments]
     
     def get(self, request, pk):
         """Obtener detalles de una asignación de rol"""
@@ -412,7 +414,7 @@ class AsignacionRolDetailAPIView(APIView):
 
 class AsignacionBusListCreateAPIView(APIView):
     """Vista para listar y crear asignaciones de buses"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageAssignments]
     
     def get(self, request):
         """Listar todas las asignaciones de buses"""
@@ -442,7 +444,7 @@ class AsignacionBusListCreateAPIView(APIView):
 
 class AsignacionBusDetailAPIView(APIView):
     """Vista para ver, editar y eliminar una asignación de bus específica"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageAssignments]
     
     def get(self, request, pk):
         """Obtener detalles de una asignación de bus"""
